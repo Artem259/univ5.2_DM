@@ -15,14 +15,13 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
 
     def fit(self, X, y):
         X, y = validate_data(self, X, y)
+        X = np.array(X)
 
         if type_of_target(y) in ("continuous", "continuous-multioutput"):
             raise ValueError(f"Unknown label type: {type_of_target(y)}")
         self.classes_, y = np.unique(y, return_inverse=True)
 
-        X = np.array(X)
         records_num = X.shape[0]
-
         min_error_rate = 2.0
         for attr_i, attr_values in enumerate(X.T):
             df = pd.DataFrame({'attr_value': attr_values, 'y': y})
