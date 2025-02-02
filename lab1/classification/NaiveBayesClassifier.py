@@ -15,16 +15,31 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
 
     def fit(self, X, y):
         X, y = validate_data(self, X, y)
+        X = np.array(X)
 
         if type_of_target(y) in ("continuous", "continuous-multioutput"):
             raise ValueError(f"Unknown label type: {type_of_target(y)}")
         self.classes_, y = np.unique(y, return_inverse=True)
         y_series = pd.Series(y)
 
-        X_df = pd.DataFrame(X)
+        self.class_probs_ = y_series.value_counts(normalize=True).to_dict()
 
-        # TODO
+        self.attr_probs_ = []
+        self.attr_missing_probs_ = []
+        for attr_i, attr_values in enumerate(X.T):
+            attr_unique_num = len(np.unique(attr_values))
+            y_attr_df = pd.DataFrame({'y': y, 'attr': attr_values})
 
+            y_attr_grouped = y_attr_df.groupby('y')['attr']
+            self.attr_probs_.append(
+                (y_attr_grouped
+                 .apply(lambda x: x.value_counts())
+                 .apply(lambda x: (x + 1) / (sum(x) + attr_unique_num)))
+            )
+            self.attr_missing_probs_.append(1 / attr_unique_num)
+
+        print(self.attr_probs_)
+        print(self.attr_missing_probs_)
         return self
 
     def predict(self, X):
