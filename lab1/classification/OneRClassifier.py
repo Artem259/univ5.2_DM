@@ -24,9 +24,9 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
         records_num = X.shape[0]
         min_error_rate = 2.0
         for attr_i, attr_values in enumerate(X.T):
-            df = pd.DataFrame({'attr_value': attr_values, 'y': y})
+            df = pd.DataFrame({'attr': attr_values, 'y': y})
 
-            df_grouped = df.groupby('attr_value')['y']
+            df_grouped = df.groupby('attr')['y']
             rules = df_grouped.apply(lambda x: x.value_counts().idxmax())
             non_error_rate = float(df_grouped.apply(lambda x: x.value_counts().max()).sum()) / records_num
             error_rate = 1 - non_error_rate
