@@ -31,12 +31,12 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
             y_attr_df = pd.DataFrame({'y': y, 'attr': attr_values})
 
             y_attr_grouped = y_attr_df.groupby('y')['attr']
-            self.attr_probs_.append(
-                (y_attr_grouped
-                 .apply(lambda x: x.value_counts())
-                 .apply(lambda x: (x + 1) / (sum(x) + attr_unique_num)))
-            )
-            self.attr_missing_probs_.append(1 / attr_unique_num)
+            attr_probs = y_attr_grouped.apply(lambda x: x.value_counts())
+            attr_probs = attr_probs.groupby(level=0).apply(lambda x: (x + 1) / (sum(x) + attr_unique_num))
+            self.attr_probs_.append(attr_probs)
+
+            attr_missing_prob = 1 / attr_unique_num
+            self.attr_missing_probs_.append(attr_missing_prob)
 
         print(self.attr_probs_)
         print(self.attr_missing_probs_)
