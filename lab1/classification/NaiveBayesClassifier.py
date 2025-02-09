@@ -20,8 +20,8 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
         if type_of_target(y) in ("continuous", "continuous-multioutput"):
             raise ValueError(f"Unknown label type: {type_of_target(y)}")
         self.classes_, y = np.unique(y, return_inverse=True)
-        y_series = pd.Series(y)
 
+        y_series = pd.Series(y)
         self.class_probs_ = y_series.value_counts(normalize=True).to_dict()
 
         self.attr_probs_ = []
@@ -38,8 +38,6 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
             attr_missing_prob = 1 / attr_unique_num
             self.attr_missing_probs_.append(attr_missing_prob)
 
-        print(self.attr_probs_)
-        print(self.attr_missing_probs_)
         return self
 
     def predict(self, X):

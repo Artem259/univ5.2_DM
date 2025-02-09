@@ -5,6 +5,11 @@ from classification.OneRClassifier import OneRClassifier
 from classification.NaiveBayesClassifier import NaiveBayesClassifier
 
 
+def OneRClassifier_info(clf: OneRClassifier):
+    for rule in clf.rules_.items():
+        print(f"x[{clf.attr_i_}] == {rule[0]}: y = {clf.classes_[rule[1]]}")
+
+
 def sklearn_DecisionTreeClassifier_info(clf: sklearn.tree.DecisionTreeClassifier):
     children_left = clf.tree_.children_left
     children_right = clf.tree_.children_right
@@ -28,6 +33,10 @@ def sklearn_DecisionTreeClassifier_info(clf: sklearn.tree.DecisionTreeClassifier
     print(f"x[{root_feature}] > {root_threshold:.1f}: y = {right_class_label}")
 
 
-def OneRClassifier_info(clf: OneRClassifier):
-    for rule in clf.rules_.items():
-        print(f"x[{clf.attr_i_}] == {rule[0]}: y = {clf.classes_[rule[1]]}")
+def NaiveBayesClassifier_info(clf: NaiveBayesClassifier):
+    print(*clf.attr_probs_, sep="\n")
+    print(*clf.attr_missing_probs_, sep="\n")
+
+
+def sklearn_MultinomialNB_info(clf: sklearn.naive_bayes.MultinomialNB):
+    ...
