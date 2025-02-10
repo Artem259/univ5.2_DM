@@ -28,15 +28,17 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
         self.attr_missing_probs_ = []
         for attr_i, attr_values in enumerate(X.T):
             attr_unique_num = len(np.unique(attr_values))
-            y_attr_df = pd.DataFrame({'y': y, 'attr': attr_values})
+            df = pd.DataFrame({'y': y, 'attr': attr_values})
 
-            y_attr_grouped = y_attr_df.groupby('y')['attr']
-            attr_probs = y_attr_grouped.apply(lambda x: x.value_counts())
-            attr_probs = attr_probs.groupby(level=0).apply(lambda x: np.log((x + 1) / (sum(x) + attr_unique_num)))
+            df_grouped = df.groupby('y')['attr']
+            df_grouped_counted = df_grouped.value_counts()
+            attr_probs = df_grouped_counted.groupby(level=0).apply(
+                lambda x: np.log((x + 1) / (sum(x) + attr_unique_num))
+            )
             self.attr_probs_.append(attr_probs)
 
-            attr_missing_prob = np.log(1 / attr_unique_num)  # TODO fix
-            self.attr_missing_probs_.append(attr_missing_prob)
+            attr_missing_probs = df_grouped.apply(lambda x: np.log(1 / (len(x) + attr_unique_num)))
+            self.attr_missing_probs_.append(attr_missing_probs)
 
         return self
 

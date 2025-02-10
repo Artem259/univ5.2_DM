@@ -34,11 +34,11 @@ def sklearn_DecisionTreeClassifier_info(clf: sklearn.tree.DecisionTreeClassifier
 
 
 def NaiveBayesClassifier_info(clf: NaiveBayesClassifier):
-    print(*clf.attr_probs_, sep="\n")
+    print(*clf.attr_probs_, sep="\n---\n")
     print(*clf.attr_missing_probs_)
     print(clf.class_probs_)
 
 
 def sklearn_CategoricalNB_info(clf: sklearn.naive_bayes.CategoricalNB):
-    print(clf.feature_log_prob_)
+    print(*clf.feature_log_prob_, sep="\n---\n")
     print(clf.class_log_prior_)
