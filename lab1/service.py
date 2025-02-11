@@ -34,6 +34,7 @@ def sklearn_DecisionTreeClassifier_info(clf: sklearn.tree.DecisionTreeClassifier
 
 
 def NaiveBayesClassifier_info(clf: NaiveBayesClassifier):
+    print(*clf.attr_unique_)
     print(*clf.attr_probs_, sep="\n---\n")
     print(*clf.attr_missing_probs_)
     print(clf.class_probs_)

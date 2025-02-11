@@ -24,17 +24,20 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
         y_series = pd.Series(y)
         self.class_probs_ = np.log(y_series.value_counts(normalize=True)).sort_index().tolist()
 
+        self.attr_unique_ = []
         self.attr_probs_ = []
         self.attr_missing_probs_ = []
         for attr_i, attr_values in enumerate(X.T):
-            attr_unique_num = len(np.unique(attr_values))
-            df = pd.DataFrame({'y': y, 'attr': attr_values})
+            attr_unique = set(np.unique(attr_values).tolist())
+            attr_unique_num = len(attr_unique)
+            self.attr_unique_.append(attr_unique)
 
+            df = pd.DataFrame({'y': y, 'attr': attr_values})
             df_grouped = df.groupby('y')['attr']
             df_grouped_counted = df_grouped.value_counts()
             attr_probs = df_grouped_counted.groupby(level=0).apply(
                 lambda x: np.log((x + 1) / (sum(x) + attr_unique_num))
-            )
+            ).reset_index(level=1, drop=True)
             self.attr_probs_.append(attr_probs)
 
             attr_missing_probs = df_grouped.apply(lambda x: np.log(1 / (len(x) + attr_unique_num)))
@@ -42,15 +45,19 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
 
         return self
 
+    def decision_function(self, X):
+        D = []
+        attr_probs_ = pd.concat(self.attr_probs_)
+        for x in X:
+            d = np.array(self.class_probs_)
+            ...
+            D.append(d)
+
+        return np.array(D)
+
     def predict(self, X):
         check_is_fitted(self)
         X = validate_data(self, X, reset=False)
 
-        try:
-            y_pred = ... # TODO
-            return np.array(y_pred)
-        except KeyError as e:
-            raise KeyError(
-                f"NaiveBayesClassifier encountered an unknown value '{e.args[0]}' in feature index {self.attr_i_}. "
-                "Ensure that all input values were seen during training."
-            )
+        D = self.decision_function(X)
+        return self.classes_[np.argmax(D, axis=1)]
