@@ -22,68 +22,69 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
         self.classes_, y = np.unique(y, return_inverse=True)
 
         y_series = pd.Series(y)
-        self.class_probs_ = np.log(y_series.value_counts(normalize=True)).sort_index()
+        self.class_log_probs_ = np.log(y_series.value_counts(normalize=True)).sort_index()
 
-        self.attr_unique_ = []
-        self.attr_probs_ = []
-        self.attr_missing_probs_ = []
-        for attr_i, attr_values in enumerate(X.T):
-            attr_unique = set(np.unique(attr_values).tolist())
-            attr_unique_num = len(attr_unique)
-            self.attr_unique_.append(attr_unique)
+        self.feature_unique_values_ = []
+        self.feature_log_probs_ = []
+        self.feature_missing_log_probs_ = []
+        for feature_index, feature_values in enumerate(X.T):
+            unique_values = set(np.unique(feature_values).tolist())
+            unique_num = len(unique_values)
+            self.feature_unique_values_.append(unique_values)
 
-            df = pd.DataFrame({'y': y, 'attr': attr_values})
-            df_grouped = df.groupby('y')['attr']
-            df_grouped_counted = df_grouped.value_counts()
-            attr_probs = df_grouped_counted.groupby(level=0).apply(
-                lambda x: np.log((x + 1) / (sum(x) + attr_unique_num))
+            df = pd.DataFrame({'y': y, 'feat_v': feature_values})
+            df_grouped = df.groupby('y')['feat_v']
+            grouped_counts = df_grouped.value_counts()
+            log_probs = grouped_counts.groupby(level=0).apply(
+                lambda x: np.log((x + 1) / (sum(x) + unique_num))
             ).reset_index(level=1, drop=True)
-            self.attr_probs_.append(attr_probs)
+            self.feature_log_probs_.append(log_probs)
 
-            attr_missing_probs = df_grouped.apply(lambda x: np.log(1 / (len(x) + attr_unique_num)))
-            self.attr_missing_probs_.append(attr_missing_probs)
+            missing_log_probs = df_grouped.apply(
+                lambda x: np.log(1 / (len(x) + unique_num))
+            )
+            self.feature_missing_log_probs_.append(missing_log_probs)
 
-        self.attrs_num_ = len(self.attr_unique_)
-
+        self.num_features_ = len(self.feature_unique_values_)
         return self
 
     def decision_function(self, X):
         check_is_fitted(self)
         X = validate_data(self, X, reset=False)
 
-        return self.__decision_function(X)
+        return self._decision_function(X)
 
     def predict(self, X):
         check_is_fitted(self)
         X = validate_data(self, X, reset=False)
 
-        D = self.__decision_function(X)
-        return self.classes_[np.argmax(D, axis=1)]
+        decision_scores = self._decision_function(X)
+        return self.classes_[np.argmax(decision_scores, axis=1)]
 
-    def __decision_function(self, X):
-        attr_probs = pd.concat(self.attr_probs_, keys=range(self.attrs_num_))
+    def _decision_function(self, X):
+        feature_probs_concat = pd.concat(self.feature_log_probs_, keys=range(self.num_features_))
 
-        D = []
+        decision_scores = []
         for x in X:
-            x_probs = attr_probs.groupby(level=[0, 1]).apply(
-                lambda group: self.__aaa(group, x)
+            x_feature_log_probs = feature_probs_concat.groupby(level=[0, 'y']).apply(
+                lambda group: self._insert_missing_probs(group, x)
             )
-            d = x_probs.groupby('y').sum() + self.class_probs_
-            D.append(d)
+            x_decision_scores = x_feature_log_probs.groupby('y').sum() + self.class_log_probs_
+            decision_scores.append(x_decision_scores)
 
-        return np.array(D)
+        return np.array(decision_scores)
 
-    def __aaa(self, group, x):
-        attr_i = group.index.get_level_values(0).tolist()[0]
-        group_y = group.index.get_level_values('y').tolist()[0]
-        group_attr_values = group.index.get_level_values('attr').tolist()
+    def _insert_missing_probs(self, group, x):
+        feature_index = group.index.get_level_values(0).tolist()[0]
+        y_value = group.index.get_level_values('y').tolist()[0]
+        known_values = group.index.get_level_values('feat_v').tolist()
 
-        x_attr_v = x[attr_i]
-        if x_attr_v in group_attr_values:
-            return group.loc[attr_i, group_y, x_attr_v]
-        if x_attr_v not in self.attr_unique_[attr_i]:
+        feature_value = x[feature_index]
+        if feature_value in known_values:
+            return group.loc[feature_index, y_value, feature_value]
+        if feature_value not in self.feature_unique_values_[feature_index]:
             raise KeyError(
-                f"NaiveBayesClassifier encountered an unknown value '{x_attr_v}' in feature index {attr_i}. "
+                f"NaiveBayesClassifier encountered an unknown value '{feature_value}' in feature index {feature_index}. "
                 "Ensure that all input values were seen during training."
             )
-        return self.attr_missing_probs_[attr_i][group_y]
+        return self.feature_missing_log_probs_[feature_index][y_value]

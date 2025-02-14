@@ -21,20 +21,20 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
             raise ValueError(f"Unknown label type: {type_of_target(y)}")
         self.classes_, y = np.unique(y, return_inverse=True)
 
-        records_num = X.shape[0]
-        min_error_rate = 2.0
-        for attr_i, attr_values in enumerate(X.T):
-            df = pd.DataFrame({'attr': attr_values, 'y': y})
+        num_samples = X.shape[0]
+        best_error_rate = 1.01
+        for feature_index, feature_values in enumerate(X.T):
+            df = pd.DataFrame({'feat_v': feature_values, 'y': y})
 
-            df_grouped = df.groupby('attr')['y']
-            rules = df_grouped.apply(lambda x: x.value_counts().idxmax())
-            non_error_rate = float(df_grouped.apply(lambda x: x.value_counts().max()).sum()) / records_num
-            error_rate = 1 - non_error_rate
+            df_grouped = df.groupby('feat_v')['y']
+            prediction_rules = df_grouped.apply(lambda x: x.value_counts().idxmax())
+            accuracy = float(df_grouped.apply(lambda x: x.value_counts().max()).sum()) / num_samples
+            error_rate = 1 - accuracy
 
-            if error_rate < min_error_rate:
-                min_error_rate = error_rate
-                self.attr_i_ = attr_i
-                self.rules_ = rules
+            if error_rate < best_error_rate:
+                best_error_rate = error_rate
+                self.best_feature_index_ = feature_index
+                self.prediction_rules_ = prediction_rules
 
         return self
 
@@ -43,10 +43,10 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
         X = validate_data(self, X, reset=False)
 
         try:
-            y_pred = [self.classes_[self.rules_[x[self.attr_i_]]] for x in X]
-            return np.array(y_pred)
+            predictions = [self.classes_[self.prediction_rules_[x[self.best_feature_index_]]] for x in X]
+            return np.array(predictions)
         except KeyError as e:
             raise KeyError(
-                f"OneRClassifier encountered an unknown value '{e.args[0]}' in feature index {self.attr_i_}. "
+                f"OneRClassifier encountered an unknown value '{e.args[0]}' in feature index {self.best_feature_index_}. "
                 "Ensure that all input values were seen during training."
             )
