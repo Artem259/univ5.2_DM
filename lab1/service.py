@@ -6,8 +6,8 @@ from classification.NaiveBayesClassifier import NaiveBayesClassifier
 
 
 def OneRClassifier_info(clf: OneRClassifier):
-    for rule in clf.rules_.items():
-        print(f"x[{clf.attr_i_}] == {rule[0]}: y = {clf.classes_[rule[1]]}")
+    for rule in clf.prediction_rules_.items():
+        print(f"x[{clf.best_feature_index_}] == {rule[0]}: y = {clf.classes_[rule[1]]}")
 
 
 def sklearn_DecisionTreeClassifier_info(clf: sklearn.tree.DecisionTreeClassifier):
@@ -34,12 +34,21 @@ def sklearn_DecisionTreeClassifier_info(clf: sklearn.tree.DecisionTreeClassifier
 
 
 def NaiveBayesClassifier_info(clf: NaiveBayesClassifier):
-    print(*clf.attr_unique_)
-    print(*clf.attr_probs_, sep="\n---\n")
-    print(*clf.attr_missing_probs_)
-    print(clf.class_probs_)
+    info = {
+        "class_log_probs_": clf.class_log_probs_,
+        "feature_log_probs_": clf.feature_log_probs_,
+        "feature_missing_log_probs_": clf.feature_missing_log_probs_,
+    }
+    for key, value in info.items():
+        print(f"{key}:")
+        print(*value, "\n")
 
 
 def sklearn_CategoricalNB_info(clf: sklearn.naive_bayes.CategoricalNB):
-    print(*clf.feature_log_prob_, sep="\n---\n")
-    print(clf.class_log_prior_)
+    info = {
+        "class_log_prior_": clf.class_log_prior_,
+        "feature_log_prob_": clf.feature_log_prob_,
+    }
+    for key, value in info.items():
+        print(f"{key}:")
+        print(*value, "\n")
