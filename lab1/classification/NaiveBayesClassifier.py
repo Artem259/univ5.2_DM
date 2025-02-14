@@ -22,7 +22,7 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
         self.classes_, y = np.unique(y, return_inverse=True)
 
         y_series = pd.Series(y)
-        self.class_probs_ = np.log(y_series.value_counts(normalize=True)).sort_index().tolist()
+        self.class_probs_ = np.log(y_series.value_counts(normalize=True)).sort_index()
 
         self.attr_unique_ = []
         self.attr_probs_ = []
@@ -43,21 +43,47 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
             attr_missing_probs = df_grouped.apply(lambda x: np.log(1 / (len(x) + attr_unique_num)))
             self.attr_missing_probs_.append(attr_missing_probs)
 
+        self.attrs_num_ = len(self.attr_unique_)
+
         return self
 
     def decision_function(self, X):
-        D = []
-        attr_probs_ = pd.concat(self.attr_probs_)
-        for x in X:
-            d = np.array(self.class_probs_)
-            ...
-            D.append(d)
+        check_is_fitted(self)
+        X = validate_data(self, X, reset=False)
 
-        return np.array(D)
+        return self.__decision_function(X)
 
     def predict(self, X):
         check_is_fitted(self)
         X = validate_data(self, X, reset=False)
 
-        D = self.decision_function(X)
+        D = self.__decision_function(X)
         return self.classes_[np.argmax(D, axis=1)]
+
+    def __decision_function(self, X):
+        attr_probs = pd.concat(self.attr_probs_, keys=range(self.attrs_num_))
+
+        D = []
+        for x in X:
+            x_probs = attr_probs.groupby(level=[0, 1]).apply(
+                lambda group: self.__aaa(group, x)
+            )
+            d = x_probs.groupby('y').sum() + self.class_probs_
+            D.append(d)
+
+        return np.array(D)
+
+    def __aaa(self, group, x):
+        attr_i = group.index.get_level_values(0).tolist()[0]
+        group_y = group.index.get_level_values('y').tolist()[0]
+        group_attr_values = group.index.get_level_values('attr').tolist()
+
+        x_attr_v = x[attr_i]
+        if x_attr_v in group_attr_values:
+            return group.loc[attr_i, group_y, x_attr_v]
+        if x_attr_v not in self.attr_unique_[attr_i]:
+            raise KeyError(
+                f"NaiveBayesClassifier encountered an unknown value '{x_attr_v}' in feature index {attr_i}. "
+                "Ensure that all input values were seen during training."
+            )
+        return self.attr_missing_probs_[attr_i][group_y]
