@@ -33,5 +33,8 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
         check_is_fitted(self)
         X = validate_data(self, X, reset=False)
 
+        return self._kneighbors(X, n_neighbors)
+
+    def _kneighbors(self, X, n_neighbors):
         # TODO
         return ...

@@ -3,6 +3,7 @@ import sklearn
 
 from classification.OneRClassifier import OneRClassifier
 from classification.NaiveBayesClassifier import NaiveBayesClassifier
+from classification.KNeighborsClassifier import KNeighborsClassifier
 
 
 def OneRClassifier_info(clf: OneRClassifier):
@@ -48,6 +49,22 @@ def sklearn_CategoricalNB_info(clf: sklearn.naive_bayes.CategoricalNB):
     info = {
         "class_log_prior_": clf.class_log_prior_,
         "feature_log_prob_": clf.feature_log_prob_,
+    }
+    for key, value in info.items():
+        print(f"{key}:")
+        print(*value, "\n")
+
+
+def KNeighborsClassifier_info(clf: KNeighborsClassifier, X_pred, n_neighbors):
+    print("111")
+    ... # TODO
+
+
+def sklearn_KNeighborsClassifier_info(clf: sklearn.neighbors.KNeighborsClassifier, X_pred, n_neighbors):
+    neigh_dist, neigh_ind = clf.kneighbors(X_pred, n_neighbors=n_neighbors)
+    info = {
+        "neighbors_dist": neigh_dist,
+        "neighbors_indices": neigh_ind,
     }
     for key, value in info.items():
         print(f"{key}:")
