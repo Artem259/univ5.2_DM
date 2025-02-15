@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import validate_data, check_is_fitted
 
 
@@ -17,8 +16,6 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
         X, y = validate_data(self, X, y)
         X = np.array(X)
 
-        if type_of_target(y) in ("continuous", "continuous-multioutput"):
-            raise ValueError(f"Unknown label type: {type_of_target(y)}")
         self.classes_, y = np.unique(y, return_inverse=True)
 
         num_samples = X.shape[0]
