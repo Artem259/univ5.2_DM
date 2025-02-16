@@ -19,6 +19,12 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
         X, y = validate_data(self, X, y)
         X = np.array(X)
 
+        if self.weights not in ('distance', 'uniform'):
+            raise ValueError(
+                f"The 'weights' parameter of KNeighborsClassifier must be a str among ['distance', 'uniform']. "
+                f"Got '{self.weights}' instead."
+            )
+
         if type_of_target(y) in ("continuous", "continuous-multioutput"):
             raise ValueError(f"Unknown label type: {type_of_target(y)}")
         self.classes_, y = np.unique(y, return_inverse=True)
