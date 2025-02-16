@@ -55,13 +55,19 @@ def sklearn_CategoricalNB_info(clf: sklearn.naive_bayes.CategoricalNB):
         print(*value, "\n")
 
 
-def KNeighborsClassifier_info(clf: KNeighborsClassifier, X_pred, n_neighbors):
-    print("111")
-    ... # TODO
+def KNeighborsClassifier_info(clf: KNeighborsClassifier, X_pred):
+    neigh_dist, neigh_ind = clf.kneighbors(X_pred)
+    info = {
+        "neighbors_dist": neigh_dist,
+        "neighbors_indices": neigh_ind,
+    }
+    for key, value in info.items():
+        print(f"{key}:")
+        print(*value, "\n")
 
 
-def sklearn_KNeighborsClassifier_info(clf: sklearn.neighbors.KNeighborsClassifier, X_pred, n_neighbors):
-    neigh_dist, neigh_ind = clf.kneighbors(X_pred, n_neighbors=n_neighbors)
+def sklearn_KNeighborsClassifier_info(clf: sklearn.neighbors.KNeighborsClassifier, X_pred):
+    neigh_dist, neigh_ind = clf.kneighbors(X_pred)
     info = {
         "neighbors_dist": neigh_dist,
         "neighbors_indices": neigh_ind,
