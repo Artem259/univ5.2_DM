@@ -5,10 +5,11 @@ from sklearn.utils.validation import validate_data, check_is_fitted
 
 
 class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
-    def __init__(self, n_neighbors=5, weights='uniform'):
+    def __init__(self, n_neighbors=5, weights='uniform', e=1e-9):
         super().__init__()
         self.n_neighbors = n_neighbors
         self.weights = weights
+        self.e = e
 
     def __sklearn_tags__(self):
         tags = super().__sklearn_tags__()
@@ -55,10 +56,10 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
                 X_targets=self.fitted_X_[x_neigh_indices]
             )
             if self.weights == 'distance':
-                weights = 1 / x_neigh_distances
+                weights = 1 / (x_neigh_distances + self.e)
                 x_decision_scores = np.bincount(x_neigh_labels, minlength=len(self.classes_), weights=weights)
             elif self.weights == 'distance_squared':
-                weights = 1 / x_neigh_distances_squared
+                weights = 1 / (x_neigh_distances_squared + self.e)
                 x_decision_scores = np.bincount(x_neigh_labels, minlength=len(self.classes_), weights=weights)
             else:  # self.weights == 'uniform'
                 x_decision_scores = np.bincount(x_neigh_labels, minlength=len(self.classes_))
@@ -100,4 +101,9 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
             raise ValueError(
                 f"The 'weights' parameter of KNeighborsClassifier must be a str among "
                 f"['distance', 'distance_squared', 'uniform']. Got '{self.weights}' instead."
+            )
+        if not isinstance(self.e, float) or not 0 < self.e < 1:
+            raise ValueError(
+                f"The 'e' parameter of KNeighborsClassifier must be a float in the range (0, 1). "
+                f"Got '{self.e}' instead."
             )
