@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import validate_data, check_is_fitted
@@ -35,7 +34,6 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
         X = validate_data(self, X, reset=False)
 
         decision_scores = self._decision_function(X)
-        print(decision_scores)  # TODO remove
         return self.classes_[np.argmax(decision_scores, axis=1)]
 
     def kneighbors(self, X):
@@ -50,14 +48,20 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
 
         decision_scores = []
         for x in X:
+            x_neigh_indices = self._find_kneighbors_indices(x, self.n_neighbors)
+            x_neigh_labels = self.fitted_y_[x_neigh_indices]
+            x_neigh_distances, x_neigh_distances_squared = self._calc_distances(
+                x,
+                X_targets=self.fitted_X_[x_neigh_indices]
+            )
             if self.weights == 'distance':
-                x_decision_scores = ...  # TODO
-            elif self.weights == 'uniform':
-                x_neigh_indices = self._find_kneighbors_indices(x, self.n_neighbors)
-                x_neigh_labels = self.fitted_y_[x_neigh_indices]
+                weights = 1 / x_neigh_distances
+                x_decision_scores = np.bincount(x_neigh_labels, minlength=len(self.classes_), weights=weights)
+            elif self.weights == 'distance_squared':
+                weights = 1 / x_neigh_distances_squared
+                x_decision_scores = np.bincount(x_neigh_labels, minlength=len(self.classes_), weights=weights)
+            else:  # self.weights == 'uniform'
                 x_decision_scores = np.bincount(x_neigh_labels, minlength=len(self.classes_))
-            else:
-                raise RuntimeError("This code should never be reached.")
             decision_scores.append(x_decision_scores)
 
         return np.array(decision_scores)
@@ -67,7 +71,7 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
         neigh_indices = []
         for x in X:
             x_neigh_indices = self._find_kneighbors_indices(x, self.n_neighbors)
-            x_neigh_distances, _ = self._calc_distances(x, X_to=self.fitted_X_[x_neigh_indices])
+            x_neigh_distances, _ = self._calc_distances(x, X_targets=self.fitted_X_[x_neigh_indices])
             neigh_distances.append(x_neigh_distances)
             neigh_indices.append(x_neigh_indices)
 
@@ -79,10 +83,10 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
         neigh_indices = sorted(indices, key=lambda i: distances_squared[i])[:n_neighbors]
         return np.array(neigh_indices)
 
-    def _calc_distances(self, x_from, X_to=None):
-        if X_to is None:
-            X_to = self.fitted_X_
-        distances_squared = np.sum((X_to - x_from) ** 2, axis=1)
+    def _calc_distances(self, x_source, X_targets=None):
+        if X_targets is None:
+            X_targets = self.fitted_X_
+        distances_squared = np.sum((X_targets - x_source) ** 2, axis=1)
         distances = np.sqrt(distances_squared)
         return distances, distances_squared
 
@@ -92,8 +96,8 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
                 f"The 'n_neighbors' parameter of KNeighborsClassifier must be an int in the range [1, inf). "
                 f"Got '{self.n_neighbors}' instead."
             )
-        if self.weights not in ('distance', 'uniform'):
+        if self.weights not in ('distance', 'distance_squared', 'uniform'):
             raise ValueError(
-                f"The 'weights' parameter of KNeighborsClassifier must be a str among ['distance', 'uniform']. "
-                f"Got '{self.weights}' instead."
+                f"The 'weights' parameter of KNeighborsClassifier must be a str among "
+                f"['distance', 'distance_squared', 'uniform']. Got '{self.weights}' instead."
             )
