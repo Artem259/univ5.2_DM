@@ -48,7 +48,6 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
         self.num_features_ = len(self.feature_unique_values_)
         return self
 
-
     def predict(self, X):
         check_is_fitted(self)
         X = validate_data(self, X, reset=False)

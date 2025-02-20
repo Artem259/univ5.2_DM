@@ -2,6 +2,7 @@ import sklearn
 
 from classification.OneRClassifier import OneRClassifier
 from classification.NaiveBayesClassifier import NaiveBayesClassifier
+from classification.DecisionTreeClassifier import DecisionTreeClassifier
 from classification.KNeighborsClassifier import KNeighborsClassifier
 
 
@@ -29,6 +30,10 @@ def sklearn_CategoricalNB_info(clf: sklearn.naive_bayes.CategoricalNB):
     for key, value in info.items():
         print(f"{key}:")
         print(*value, "\n")
+
+
+def DecisionTreeClassifier_info(clf: DecisionTreeClassifier):
+    ...  # TODO
 
 
 def KNeighborsClassifier_info(clf: KNeighborsClassifier, X_pred):
