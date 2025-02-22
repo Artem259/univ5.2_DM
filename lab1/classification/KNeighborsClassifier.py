@@ -1,4 +1,5 @@
 import numpy as np
+import heapq
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import validate_data, check_is_fitted
@@ -81,7 +82,7 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
     def _find_kneighbors_indices(self, x, n_neighbors):
         indices = list(range(self.fitted_X_.shape[0]))
         _, distances_squared = self._calc_distances(x)
-        neigh_indices = sorted(indices, key=lambda i: distances_squared[i])[:n_neighbors]
+        neigh_indices = heapq.nsmallest(n_neighbors, indices, key=lambda i: distances_squared[i])
         return np.array(neigh_indices)
 
     def _calc_distances(self, x_source, X_targets=None):
