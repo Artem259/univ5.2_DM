@@ -37,25 +37,25 @@ class DecisionTreeClassifier(ClassifierMixin, BaseEstimator):
         return ...  # self.classes_[np.argmax(decision_scores, axis=1)]
 
     def _id3_algorithm(self, df: pd.DataFrame, feat_indices: set[int]) -> "DecisionTreeNode":
-        tree = DecisionTreeNode()
+        node = DecisionTreeNode()
 
         y_counts = df['y'].value_counts()
         most_frequent_y = y_counts.index[0]
         if len(y_counts) == 1 or not feat_indices:
-            tree.make_leaf(most_frequent_y)
-            return tree
+            node.make_leaf(most_frequent_y)
+            return node
 
         best_feat = max(feat_indices, key=lambda x: self._information_gain(df, x))
-        tree.make_splitter(best_feat)
+        node.make_splitter(best_feat)
         for best_feat_value, df_group in df.groupby(by=best_feat):
             if len(df_group) == 0:
-                child = DecisionTreeNode()
-                child.make_leaf(most_frequent_y)
+                child_node = DecisionTreeNode()
+                child_node.make_leaf(most_frequent_y)
             else:
-                child = self._id3_algorithm(df_group, feat_indices - {best_feat})
-            tree.add_splitter_child(best_feat_value, child)
+                child_node = self._id3_algorithm(df_group, feat_indices - {best_feat})
+            node.add_splitter_child(best_feat_value, child_node)
 
-        return tree
+        return node
 
     def _information_gain(self, df: pd.DataFrame, feat_index: int) -> float:
         # TODO
