@@ -2,7 +2,7 @@ import sklearn
 
 from classification.OneRClassifier import OneRClassifier
 from classification.NaiveBayesClassifier import NaiveBayesClassifier
-from classification.DecisionTreeClassifier import DecisionTreeClassifier
+from classification.DecisionTreeClassifier import DecisionTreeClassifier, DecisionTreeNode
 from classification.KNeighborsClassifier import KNeighborsClassifier
 
 
@@ -33,7 +33,26 @@ def sklearn_CategoricalNB_info(clf: sklearn.naive_bayes.CategoricalNB):
 
 
 def DecisionTreeClassifier_info(clf: DecisionTreeClassifier):
-    ...  # TODO
+    def display_tree(node: DecisionTreeNode, prefix="", is_last=True, is_root=False):
+        connector = ""
+        new_prefix = ""
+
+        if not is_root:
+            connector = "└── " if is_last else "├── "
+            new_prefix = prefix + ("    " if is_last else "│   ")
+
+        if node.is_leaf:
+            print(prefix + connector + f"Label: {node.label}")
+        else:
+            print(prefix + connector + f"Feature[{node.feat_index + 1}]")
+
+            children_items = list(node.children.items())
+            for i, (feat_value, child) in enumerate(children_items):
+                is_last_child = (i == len(children_items) - 1)
+                print(new_prefix + f"({feat_value})")
+                display_tree(child, prefix=new_prefix, is_last=is_last_child)
+
+    display_tree(clf.tree_)
 
 
 def KNeighborsClassifier_info(clf: KNeighborsClassifier, X_pred):

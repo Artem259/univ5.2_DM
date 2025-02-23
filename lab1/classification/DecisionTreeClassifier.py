@@ -72,8 +72,21 @@ class DecisionTreeClassifier(ClassifierMixin, BaseEstimator):
         return node
 
     def _information_gain(self, df: pd.DataFrame, feat_index: int) -> float:
-        # TODO
-        return 0.5
+        total_entropy = self._calc_entropy(df)
+        values = df.iloc[:, feat_index].unique()
+        weighted_entropy = 0.0
+
+        for value in values:
+            subset = df[df.iloc[:, feat_index] == value]
+            weight = len(subset) / len(df)
+            weighted_entropy += weight * self._calc_entropy(subset)
+
+        return total_entropy - weighted_entropy
+
+    def _calc_entropy(self, df: pd.DataFrame) -> float:
+        value_counts = df['y'].value_counts(normalize=True)
+        entropy = -np.sum(value_counts * np.log2(value_counts))
+        return entropy
 
 
 class DecisionTreeNode:
