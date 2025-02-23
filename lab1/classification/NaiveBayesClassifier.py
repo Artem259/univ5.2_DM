@@ -9,10 +9,6 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
     def __init__(self):
         super().__init__()
 
-    def __sklearn_tags__(self):
-        tags = super().__sklearn_tags__()
-        return tags
-
     def fit(self, X, y):
         X, y = validate_data(self, X, y)
         X = np.array(X)
@@ -68,7 +64,7 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
 
         return np.array(decision_scores)
 
-    def _insert_missing_probs(self, group, x):
+    def _insert_missing_probs(self, group: pd.Series, x):
         feature_index = group.index.get_level_values(0).tolist()[0]
         y_value = group.index.get_level_values('y').tolist()[0]
         known_values = group.index.get_level_values('feat_v').tolist()
@@ -78,7 +74,8 @@ class NaiveBayesClassifier(ClassifierMixin, BaseEstimator):
             return group.loc[feature_index, y_value, feature_value]
         if feature_value not in self.feature_unique_values_[feature_index]:
             raise KeyError(
-                f"NaiveBayesClassifier encountered an unknown value '{feature_value}' in feature index {feature_index}. "
+                "NaiveBayesClassifier encountered an unknown value "
+                f"'{feature_value}' in feature index {feature_index}. "
                 "Ensure that all input values were seen during training."
             )
         return self.feature_missing_log_probs_[feature_index][y_value]

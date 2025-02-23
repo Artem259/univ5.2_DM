@@ -9,10 +9,6 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
     def __init__(self):
         super().__init__()
 
-    def __sklearn_tags__(self):
-        tags = super().__sklearn_tags__()
-        return tags
-
     def fit(self, X, y):
         X, y = validate_data(self, X, y)
         X = np.array(X)
@@ -47,6 +43,7 @@ class OneRClassifier(ClassifierMixin, BaseEstimator):
             return np.array(predictions)
         except KeyError as e:
             raise KeyError(
-                f"OneRClassifier encountered an unknown value '{e.args[0]}' in feature index {self.best_feature_index_}. "
+                "OneRClassifier encountered an unknown value "
+                f"'{e.args[0]}' in feature index {self.best_feature_index_}. "
                 "Ensure that all input values were seen during training."
             )

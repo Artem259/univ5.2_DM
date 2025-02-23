@@ -12,10 +12,6 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
         self.weights = weights
         self.e = e
 
-    def __sklearn_tags__(self):
-        tags = super().__sklearn_tags__()
-        return tags
-
     def fit(self, X, y):
         self.__validate_params()
         X, y = validate_data(self, X, y)
@@ -79,7 +75,7 @@ class KNeighborsClassifier(ClassifierMixin, BaseEstimator):
 
         return np.array(neigh_distances), np.array(neigh_indices)
 
-    def _find_kneighbors_indices(self, x, n_neighbors):
+    def _find_kneighbors_indices(self, x, n_neighbors: int):
         indices = list(range(self.fitted_X_.shape[0]))
         _, distances_squared = self._calc_distances(x)
         neigh_indices = heapq.nsmallest(n_neighbors, indices, key=lambda i: distances_squared[i])
