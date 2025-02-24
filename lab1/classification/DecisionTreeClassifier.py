@@ -9,10 +9,6 @@ class DecisionTreeClassifier(ClassifierMixin, BaseEstimator):
     def __init__(self):
         super().__init__()
 
-    def __sklearn_tags__(self):
-        tags = super().__sklearn_tags__()
-        return tags
-
     def fit(self, X, y):
         X, y = validate_data(self, X, y)
         X = np.array(X)
@@ -40,7 +36,14 @@ class DecisionTreeClassifier(ClassifierMixin, BaseEstimator):
             curr_node = self.tree_
             while not curr_node.is_leaf:
                 feat_value = x[curr_node.feat_index]
-                curr_node = curr_node.children[feat_value]  # TODO handle the unknown value
+                try:
+                    curr_node = curr_node.children[feat_value]
+                except KeyError as e:
+                    raise KeyError(
+                        f"DecisionTreeClassifier encountered an unknown value "
+                        f"'{e.args[0]}' in feature index {curr_node.feat_index}. "
+                        "Ensure that all input values were seen during training."
+                    )
             y_pred.append(curr_node.label)
 
         return self.classes_[y_pred]
