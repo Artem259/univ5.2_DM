@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils.validation import validate_data
 
+from . import tools
+
 
 class KMeans(ClusterMixin, BaseEstimator):
     def __init__(self, n_clusters, init, max_iter=300, e=1e-4):
@@ -16,9 +18,20 @@ class KMeans(ClusterMixin, BaseEstimator):
         X = validate_data(self, X)
         X = np.array(X)
 
-        # TODO
+        self.cluster_centers_ = np.array(self.init)
+        self.n_iter_ = 0
+        while self.n_iter_ < self.max_iter:
+            prev_cluster_centers = self.cluster_centers_
+            # TODO
+            max_centers_dist_diff = tools.calc_max_zip_distance(
+                self.cluster_centers_,
+                prev_cluster_centers,
+                tools.euclidean_distance
+            )
+            if max_centers_dist_diff < self.e:
+                break
 
-        self.labels_ = ...
+        self.labels_ = ...  # TODO
         return self
 
     def __validate_params(self):
