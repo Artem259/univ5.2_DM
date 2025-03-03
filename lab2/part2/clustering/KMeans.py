@@ -20,9 +20,24 @@ class KMeans(ClusterMixin, BaseEstimator):
 
         self.cluster_centers_ = np.array(self.init)
         self.n_iter_ = 0
+
         while self.n_iter_ < self.max_iter:
             prev_cluster_centers = self.cluster_centers_
-            # TODO
+
+            # Assign clusters
+            distances = tools.calc_distance_matrix(X, prev_cluster_centers, tools.euclidean_distance)
+            labels = np.argmin(distances, axis=1)
+
+            # Recompute centroids
+            new_cluster_centers = np.array([
+                X[labels == i].mean(axis=0) if np.any(labels == i) else prev_cluster_centers[i]
+                for i in range(self.n_clusters)
+            ])
+
+            self.labels_, self.cluster_centers_ = labels, new_cluster_centers
+            self.n_iter_ += 1
+
+            # Convergence check
             max_centers_dist_diff = tools.calc_max_zip_distance(
                 self.cluster_centers_,
                 prev_cluster_centers,
@@ -31,7 +46,6 @@ class KMeans(ClusterMixin, BaseEstimator):
             if max_centers_dist_diff < self.e:
                 break
 
-        self.labels_ = ...  # TODO
         return self
 
     def __validate_params(self):
