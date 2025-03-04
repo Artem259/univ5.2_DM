@@ -54,14 +54,13 @@ class KMeans(ClusterMixin, BaseEstimator):
         ])
 
     def _recalc_labels(self, X):
-        distances = tools.calc_distance_matrix(X, self.cluster_centers_, tools.euclidean_distance)
+        distances = tools.calc_distance_matrix(X, self.cluster_centers_)
         return np.argmin(distances, axis=1)
 
     def _check_convergence(self, old_cluster_centers):
         max_centers_dist_diff = tools.calc_max_zip_distance(
             self.cluster_centers_,
-            old_cluster_centers,
-            tools.euclidean_distance
+            old_cluster_centers
         )
         return max_centers_dist_diff <= self.e
 
