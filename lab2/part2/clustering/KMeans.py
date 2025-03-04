@@ -19,34 +19,38 @@ class KMeans(ClusterMixin, BaseEstimator):
         X = np.array(X)
 
         self.cluster_centers_ = np.array(self.init)
+        self.labels_ = self._recalc_labels(X)
         self.n_iter_ = 0
 
         while self.n_iter_ < self.max_iter:
-            prev_cluster_centers = self.cluster_centers_
-
-            # Assign clusters
-            distances = tools.calc_distance_matrix(X, prev_cluster_centers, tools.euclidean_distance)
-            labels = np.argmin(distances, axis=1)
-
-            # Recompute centroids
-            new_cluster_centers = np.array([
-                X[labels == i].mean(axis=0) if np.any(labels == i) else prev_cluster_centers[i]
-                for i in range(self.n_clusters)
-            ])
-
-            self.labels_, self.cluster_centers_ = labels, new_cluster_centers
             self.n_iter_ += 1
 
-            # Convergence check
-            max_centers_dist_diff = tools.calc_max_zip_distance(
-                self.cluster_centers_,
-                prev_cluster_centers,
-                tools.euclidean_distance
-            )
-            if max_centers_dist_diff < self.e:
+            old_cluster_centers = self.cluster_centers_
+            self.cluster_centers_ = self._recalc_cluster_centers(X)
+            self.labels_ = self._recalc_labels(X)
+
+            if self._check_convergence(old_cluster_centers):
                 break
 
         return self
+
+    def _recalc_cluster_centers(self, X):
+        return np.array([
+            X[self.labels_ == i].mean(axis=0) if np.any(self.labels_ == i) else self.cluster_centers_[i]
+            for i in range(self.n_clusters)
+        ])
+
+    def _recalc_labels(self, X):
+        distances = tools.calc_distance_matrix(X, self.cluster_centers_, tools.euclidean_distance)
+        return np.argmin(distances, axis=1)
+
+    def _check_convergence(self, old_cluster_centers):
+        max_centers_dist_diff = tools.calc_max_zip_distance(
+            self.cluster_centers_,
+            old_cluster_centers,
+            tools.euclidean_distance
+        )
+        return max_centers_dist_diff < self.e
 
     def __validate_params(self):
         if not isinstance(self.n_clusters, int) or self.n_clusters < 1:
