@@ -19,13 +19,22 @@ class KMedoids(KMeans):
 
     def _init_cluster_centers(self, X):
         kmeans_cluster_centers = super()._init_cluster_centers(X)
-
-        indices_with_centers = [tools.find_closest_point(X, center) for center in kmeans_cluster_centers]
-        self.cluster_center_indices_, cluster_centers = zip(*indices_with_centers)
-        self.cluster_center_indices_ = np.array(self.cluster_center_indices_)
-        cluster_centers = np.array(cluster_centers)
-
-        return cluster_centers
+        indices, centers = _convert_kmeans_cluster_centers(X, kmeans_cluster_centers)
+        self.cluster_center_indices_ = indices
+        return centers
 
     def _recalc_cluster_centers(self, X):
-        ...  # TODO
+        kmeans_cluster_centers = super()._recalc_cluster_centers(X)
+        indices, centers = _convert_kmeans_cluster_centers(X, kmeans_cluster_centers)
+        self.cluster_center_indices_ = indices
+        return centers
+
+    def _recalc_labels(self, X):
+        distances = self.distance_matrix_[:, self.cluster_center_indices_]
+        return np.argmin(distances, axis=1)
+
+
+def _convert_kmeans_cluster_centers(X, kmeans_cluster_centers):
+    indices_with_centers = [tools.find_closest_point(X, center) for center in kmeans_cluster_centers]
+    indices, centers = zip(*indices_with_centers)
+    return np.array(indices), np.array(centers)
