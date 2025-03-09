@@ -16,9 +16,30 @@ class AgglomerativeClustering(ClusterMixin, BaseEstimator):
         X = validate_data(self, X)
         X = np.array(X)
 
-        # TODO
+        num_samples = X.shape[0]
+        labels = np.arange(num_samples)
+        distance_matrix = tools.calc_distance_matrix(X, X)
+        matrix_labels = labels.copy()
+        children = []
+        distances = []
 
+        for i in range(num_samples):
+            child, distance = self._merge_clusters_iter(X, labels, distance_matrix, matrix_labels)
+            children.append(child)
+            distances.append(distance)
+
+            if i == num_samples - self.n_clusters:
+                self.labels_ = np.array(labels)
+
+        self.children_ = np.array(children)
+        self.distances_ = np.array(distances)
         return self
+
+    def _merge_clusters_iter(self, X, labels, distance_matrix, matrix_labels):
+        ...  # TODO
+
+    def _calc_clusters_distance(self, X, labels1, labels2):
+        ...  # TODO
 
     def __validate_params(self):
         if not isinstance(self.n_clusters, int) or self.n_clusters < 1:
