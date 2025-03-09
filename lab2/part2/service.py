@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from matplotlib import pyplot as plt
 
 
@@ -31,4 +32,14 @@ def plot_clusters(X, labels, cluster_labels, cluster_centers=None):
         plt.text(X[i, 0] - 0.1, X[i, 1] + 0.1, label, fontsize=10, ha='right', va='bottom')
 
     plt.legend()
+    plt.show()
+
+
+def plot_dendrogram(children, distances, labels, title):
+    linkage_matrix = np.column_stack([children, distances, np.zeros(len(children))]).astype(float)
+
+    plt.figure(figsize=(10, 5))
+    scipy.cluster.hierarchy.dendrogram(linkage_matrix, labels=labels, count_sort='descending')
+    plt.title(title)
+    plt.ylabel("Distance")
     plt.show()
