@@ -36,6 +36,7 @@ class KMeans(ClusterMixin, BaseEstimator):
             if self._check_convergence(old_cluster_centers):
                 break
 
+        self.inertia_ = self._calc_inertia(X)
         return self
 
     def _init_fit(self, X):
@@ -63,6 +64,10 @@ class KMeans(ClusterMixin, BaseEstimator):
             old_cluster_centers
         )
         return max_centers_dist_diff <= self.e
+
+    def _calc_inertia(self, X):
+        distances = tools.calc_distance_matrix(X, self.cluster_centers_)
+        return float(np.sum(np.min(distances, axis=1) ** 2))
 
     def __validate_params(self):
         if not isinstance(self.n_clusters, int) or self.n_clusters < 1:
