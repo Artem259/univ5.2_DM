@@ -92,16 +92,16 @@ def plot_dendrogram(children, distances, labels, title, figsize=(6.4, 4.8)):
 def generate_toy_datasets(n_samples, random_state_1=30, random_state_2=170):
     circles = make_circles(n_samples=n_samples, factor=0.5, noise=0.05, random_state=random_state_1)[0]
     moons = make_moons(n_samples=n_samples, noise=0.05, random_state=random_state_1)[0]
-    blobs = make_blobs(n_samples=n_samples, random_state=random_state_1)[0]
+    blobs = make_blobs(n_samples=n_samples, centers=2, random_state=random_state_1)[0]
     rng = np.random.RandomState(random_state_1)
     no_structure = rng.rand(n_samples, 2)
 
-    X = make_blobs(n_samples=n_samples, random_state=random_state_2)[0]
-    transformation = np.array([[0.6, -0.6], [-0.4, 0.8]])
+    X = make_blobs(n_samples=n_samples, centers=2, random_state=random_state_2)[0]
+    transformation = np.array([[0.4, -0.4], [-0.4, 0.8]])
     aniso = np.dot(X, transformation)
 
     varied = make_blobs(
-        n_samples=n_samples, cluster_std=[1.0, 2.5, 0.5], random_state=random_state_2
+        n_samples=n_samples, centers=2, cluster_std=[1.0, 0.5], random_state=random_state_2
     )[0]
 
     datasets = [
@@ -118,7 +118,7 @@ def generate_toy_datasets(n_samples, random_state_1=30, random_state_2=170):
     return datasets
 
 
-def plot_toy_datasets(datasets, clusterers, figsize, lim=2.5):
+def plot_toy_datasets(datasets, clusterers, figsize, axis_lim=2.5):
     fig, axes = plt.subplots(len(datasets), len(clusterers), figsize=figsize)
     plt.subplots_adjust(
         left=0.02, right=0.98, bottom=0.001, top=0.98, wspace=0.01, hspace=0.01
@@ -138,8 +138,8 @@ def plot_toy_datasets(datasets, clusterers, figsize, lim=2.5):
 
             if row == 0:
                 ax.set_title(clusterer_str)
-            plt.xlim(-lim, lim)
-            plt.ylim(-lim, lim)
+            plt.xlim(-axis_lim, axis_lim)
+            plt.ylim(-axis_lim, axis_lim)
             plt.xticks(())
             plt.yticks(())
             ax.text(
