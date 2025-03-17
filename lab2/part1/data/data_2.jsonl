@@ -1,0 +1,30 @@
+{"Dataset": 1, "Transaction": ["c", "a", "d", "b"]}
+{"Dataset": 1, "Transaction": ["b", "c", "d"]}
+{"Dataset": 1, "Transaction": ["a", "e", "f", "g", "h"]}
+{"Dataset": 1, "Transaction": ["e", "d", "c", "g", "j", "b"]}
+{"Dataset": 1, "Transaction": ["e", "c", "d", "f", "b"]}
+{"Dataset": 1, "Transaction": ["a", "f", "g"]}
+{"Dataset": 1, "Transaction": ["i", "a", "j"]}
+{"Dataset": 1, "Transaction": ["h", "a", "e", "b"]}
+{"Dataset": 1, "Transaction": ["i", "f", "g", "h", "j"]}
+{"Dataset": 1, "Transaction": ["h", "e", "f"]}
+{"Dataset": 2, "Transaction": ["c", "a", "f", "b"]}
+{"Dataset": 2, "Transaction": ["c", "b", "f"]}
+{"Dataset": 2, "Transaction": ["e", "d", "g", "h", "b"]}
+{"Dataset": 2, "Transaction": ["e", "c", "f", "g", "j", "b"]}
+{"Dataset": 2, "Transaction": ["e", "c", "d", "f", "b"]}
+{"Dataset": 2, "Transaction": ["a", "d", "g"]}
+{"Dataset": 2, "Transaction": ["i", "a", "j"]}
+{"Dataset": 2, "Transaction": ["h", "a", "e", "b"]}
+{"Dataset": 2, "Transaction": ["i", "d", "g", "h", "j"]}
+{"Dataset": 2, "Transaction": ["h", "e", "d"]}
+{"Dataset": 3, "Transaction": ["a", "e", "c", "f", "d", "b"]}
+{"Dataset": 3, "Transaction": ["b", "c", "d"]}
+{"Dataset": 3, "Transaction": ["h", "b", "e", "g"]}
+{"Dataset": 3, "Transaction": ["b", "c", "j", "g"]}
+{"Dataset": 3, "Transaction": ["e", "c", "d", "f", "b"]}
+{"Dataset": 3, "Transaction": ["e", "a", "f"]}
+{"Dataset": 3, "Transaction": ["i", "a", "j"]}
+{"Dataset": 3, "Transaction": ["a", "e", "c", "h", "b"]}
+{"Dataset": 3, "Transaction": ["i", "e", "h", "j", "6"]}
+{"Dataset": 3, "Transaction": ["h", "b", "f"]}

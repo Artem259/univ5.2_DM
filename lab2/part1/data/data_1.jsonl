@@ -1,0 +1,10 @@
+{"Transaction": ["a", "b", "c", "d", "e"]}
+{"Transaction": ["a", "c", "d", "f"]}
+{"Transaction": ["a", "b", "c", "d", "e", "g"]}
+{"Transaction": ["c", "d", "e", "f"]}
+{"Transaction": ["c", "e", "f", "h"]}
+{"Transaction": ["d", "e", "f"]}
+{"Transaction": ["a", "f", "g"]}
+{"Transaction": ["d", "e", "g", "h"]}
+{"Transaction": ["a", "b", "c", "f"]}
+{"Transaction": ["c", "d", "e", "h"]}
