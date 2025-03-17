@@ -14,22 +14,20 @@ def apriori_algorithm(transactions, min_support=0.5):
     frequent_itemsets = {item: count for item, count in item_counts.items() if count >= min_count}
 
     k = 2
+    prev_frequent_itemsets = frequent_itemsets.copy()
     while True:
         new_candidates = defaultdict(int)
-        frequent_items = list(frequent_itemsets.keys())
-
+        frequent_items = list(prev_frequent_itemsets.keys())
         for i in range(len(frequent_items)):
             for j in range(i + 1, len(frequent_items)):
                 candidate = frequent_items[i] | frequent_items[j]
                 if len(candidate) == k:
                     new_candidates[candidate] = sum(1 for t in transactions if candidate.issubset(t))
-
-        new_frequent_itemsets = {k: v for k, v in new_candidates.items() if v >= min_count}
-
+        new_frequent_itemsets = {item: count for item, count in new_candidates.items() if count >= min_count}
         if not new_frequent_itemsets:
             break
-
         frequent_itemsets.update(new_frequent_itemsets)
+        prev_frequent_itemsets = new_frequent_itemsets
         k += 1
 
     return frequent_itemsets
