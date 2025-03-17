@@ -42,8 +42,8 @@ def association_rules(frequent_itemsets, transactions, min_confidence=0.6):
             for antecedent in combinations(itemset, i):
                 antecedent = frozenset(antecedent)
                 consequent = itemset - antecedent
-                antecedent_support = sum(1 for t in transactions if antecedent.issubset(t))
-                confidence = support_count / antecedent_support if antecedent_support > 0 else 0
+                antecedent_support_count = sum(1 for t in transactions if antecedent.issubset(t))
+                confidence = support_count / antecedent_support_count if antecedent_support_count > 0 else 0
                 if confidence >= min_confidence:
                     rules.append((antecedent, consequent, confidence))
     return rules
